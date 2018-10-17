@@ -5,6 +5,7 @@ const fse = require('fs-extra');
 const _ = require('lodash');
 const moment = require('moment');
 const sharp = require('sharp');
+const exif = require('exif-reader');
 
 Promise.promisifyAll(fs);
 
@@ -19,8 +20,18 @@ function createJsonpResult(imageData, callbackName = '_callback') {
     return {
       name,
       meta,
-      images: images.map(image => `${imageUrlPrefix}/data/${name}/${path.basename(image)}`),
-      smallImages: images.map(image => `${imageUrlPrefix}/dist/${name}/${path.basename(image)}`),
+      images: images.map(image => {
+        const { exif, width, height, smallWidth, smallHeight, imagePath } = image;
+        return {
+          exif,
+          width,
+          height,
+          smallWidth,
+          smallHeight,
+          src: `${imageUrlPrefix}/data/${name}/${path.basename(imagePath)}`,
+          smallSrc: `${imageUrlPrefix}/dist/${name}/${path.basename(imagePath)}`,
+        };
+      }),
     };
   });
   const sortedData = _.sortBy(data, datum => -moment(datum.meta.date).valueOf());
@@ -53,10 +64,13 @@ async function main() {
       const images = await readDirFilter(imageDir, filePath => {
         return /[\w\w+]\.(jpg|jpeg)$/i.test(filePath);
       });
+      const imageItems = _.map(images, image => ({
+        imagePath: image,
+      }));
       imageData.push({
         name: path.basename(imageDir),
         meta,
-        images,
+        images: imageItems,
       });
     }
 
@@ -64,11 +78,22 @@ async function main() {
       const imageDatum = imageData[i];
       const { name, meta, images } = imageDatum;
       for (let j = 0; j < images.length; j++) {
-        const image = images[j];
-        const imageDest = path.join(distPath, name, path.basename(image));
+        const imageItem = images[j];
+        const imagePath = imageItem.imagePath;
+        const imageDest = path.join(distPath, name, path.basename(imagePath));
         await fse.ensureDir(path.dirname(imageDest));
-        await sharp(image)
-          .resize({ width: maxWidth })
+        const sharpImage = sharp(imagePath);
+        const metadata = await sharpImage.metadata();
+        const smallWidth = Math.min(metadata.width, maxWidth);
+
+        images[j].exif = exif(metadata.exif);
+        images[j].width = metadata.width;
+        images[j].height = metadata.height;
+        images[j].smallWidth = smallWidth;
+        images[j].smallHeight = Math.round(metadata.height * smallWidth / metadata.width);
+
+        await sharpImage 
+          .resize({ width: smallWidth })
           .toFile(imageDest);
       }
     }
