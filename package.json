@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "name": "photos",
+  "version": "0.1.0",
+  "description": "A simple photos store for my blog",
+  "main": "index.js",
+  "scripts": {
+    "build": "node src/index.js",
+    "deploy": "gh-pages -d dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alex1990/photos.git"
+  },
+  "author": "Alex Chao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Alex1990/photos/issues"
+  },
+  "homepage": "https://github.com/Alex1990/photos#readme",
+  "dependencies": {
+    "bluebird": "^3.5.2",
+    "fs-extra": "^7.0.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^2.0.1"
+  }
+}
