@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 Promise.promisifyAll(fs);
 
 const root = process.cwd();
-const photoPathPrefix = 'https://raw.githubusercontent/Alex1990/photos/master/dist/';
+const photoPathPrefix = 'https://raw.githubusercontent/Alex1990/photos/master/data/';
 const dataPath = path.join(root, 'data');
 const distPath = path.join(root, 'dist');
 
@@ -54,6 +54,7 @@ async function main() {
       });
     }
 
+    /*
     for (let i = 0; i < imageData.length; i++) {
       const imageDatum = imageData[i];
       const { name, meta, images } = imageDatum;
@@ -63,6 +64,7 @@ async function main() {
         await fse.copy(image, imageDest);
       }
     }
+    */
 
     const jsonpResult = createJsonpResult(imageData, 'photosCallback');
     const jsonpFilePath = path.join(distPath, 'photos.js');
