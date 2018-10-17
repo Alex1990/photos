@@ -6,7 +6,6 @@
   "main": "index.js",
   "scripts": {
     "build": "node src/index.js",
-    "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +22,5 @@
     "bluebird": "^3.5.2",
     "fs-extra": "^7.0.0"
   },
-  "devDependencies": {
-    "gh-pages": "^2.0.1"
-  }
+  "devDependencies": {}
 }
