@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 Promise.promisifyAll(fs);
 
 const root = process.cwd();
-const photoPathPrefix = 'https://raw.githubusercontent/Alex1990/photos/gh-pages/';
+const photoPathPrefix = 'https://raw.githubusercontent/Alex1990/photos/master/dist/';
 const dataPath = path.join(root, 'data');
 const distPath = path.join(root, 'dist');
 
