@@ -1,21 +1,24 @@
 const fs = require('fs');
-const fse = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
+const fse = require('fs-extra');
+const sharp = require('sharp');
 
 Promise.promisifyAll(fs);
 
 const root = process.cwd();
-const photoPathPrefix = 'https://raw.githubusercontent/Alex1990/photos/master/data/';
+const imageUrlPrefix = 'https://alex1990.github.io/photos';
 const dataPath = path.join(root, 'data');
 const distPath = path.join(root, 'dist');
+const maxWidth = 768;
 
 function createJsonpResult(imageData, callbackName = '_callback') {
   const data = imageData.map(({ name, meta, images }) => {
     return {
       name,
       meta,
-      images: images.map(image => `${photoPathPrefix}${name}/${path.basename(image)}`),
+      images: images.map(image => `${imageUrlPrefix}/data/${name}/${path.basename(image)}`),
+      smallImages: images.map(image => `${imageUrlPrefix}/dist/${name}/${path.basename(image)}`),
     };
   });
   return `${callbackName}(
@@ -54,17 +57,18 @@ async function main() {
       });
     }
 
-    /*
     for (let i = 0; i < imageData.length; i++) {
       const imageDatum = imageData[i];
       const { name, meta, images } = imageDatum;
       for (let j = 0; j < images.length; j++) {
         const image = images[j];
         const imageDest = path.join(distPath, name, path.basename(image));
-        await fse.copy(image, imageDest);
+        await fse.ensureDir(path.dirname(imageDest));
+        await sharp(image)
+          .resize({ width: maxWidth })
+          .toFile(imageDest);
       }
     }
-    */
 
     const jsonpResult = createJsonpResult(imageData, 'photosCallback');
     const jsonpFilePath = path.join(distPath, 'photos.js');
