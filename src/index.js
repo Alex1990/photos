@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
 const fse = require('fs-extra');
+const _ = require('lodash');
+const moment = require('moment');
 const sharp = require('sharp');
 
 Promise.promisifyAll(fs);
@@ -21,8 +23,9 @@ function createJsonpResult(imageData, callbackName = '_callback') {
       smallImages: images.map(image => `${imageUrlPrefix}/dist/${name}/${path.basename(image)}`),
     };
   });
+  const sortedData = _.sortBy(data, datum => -moment(datum.meta.date).valueOf());
   return `${callbackName}(
-${JSON.stringify(data, null, 2)}
+${JSON.stringify(sortedData, null, 2)}
 )`;
 }
 
